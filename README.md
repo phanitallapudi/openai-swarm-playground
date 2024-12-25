@@ -1,3 +1,3 @@
-# FastAPI-Starter-Template
+# OpenAI Swarm Playground
 
-This repository provides a template for starting a FastAPI project with everything you need to get started quickly.
+This is a demo implementation to test the capability

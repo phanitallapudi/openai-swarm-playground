@@ -1,0 +1,5 @@
+using the below data calculate the rocket trajectory   thrust = 5000  # Newtons angle_deg = 45  # Degrees mass = 100  # Kilograms burn_time = 10  # Seconds drag_coefficient = 0.5  # Unitless altitude = 0  # Initial altitude (sea level)
+
+Given the input value x = 2.718 (approximately Euler's number), and iterations = 50, calculate the result and interpret the output using the Fourier_analysis_fractal_summation function
+
+Start with the number 3. Square it and use the result to square it again. Repeat the process 4 times. What is the final result?

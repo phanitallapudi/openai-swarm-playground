@@ -2,10 +2,15 @@ from datetime import datetime
 from dotenv import load_dotenv
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders  
 
 import os
 import base64
 import requests
+import smtplib
 import string
 import random
 
@@ -50,39 +55,45 @@ def get_weather(location, time="now"):
         return {"error": "Unexpected response format. Please check the API or your query."}
 
 
-def send_email(recipient, subject, body, attachments=None):
-    """
-    Send an email using SendGrid.
-    """
-    logger.info("using send_email tool")
-    message = Mail(
-        from_email=os.getenv("MAIL_USERNAME"),
-        to_emails=recipient,
-        subject=subject,
-        html_content=body,
-    )
-
+def send_email(to_email, subject, content, attachments=None):
+    from_email = os.getenv("SMTP_MAIL_USERNAME")  # Set this in environment variables
+    app_password = os.getenv("SMTP_MAIL_PASSWORD")  # Set your Gmail app password here
+    
+    # Create message container
+    message = MIMEMultipart()
+    message['From'] = from_email
+    message['To'] = to_email
+    message['Subject'] = subject
+    
+    # Attach the body with the msg instance
+    message.attach(MIMEText(content, 'html'))
+    
+    # Add attachments if there are any
     if attachments:
         for attachment in attachments:
-            with open(attachment["file_path"], "rb") as f:
-                data = f.read()
-                encoded_file = base64.b64encode(data).decode()
-
-            message.attachment = {
-                "content": encoded_file,
-                "type": attachment["file_type"],
-                "filename": attachment["file_name"],
-            }
-
+            with open(attachment['file_path'], 'rb') as f:
+                part = MIMEBase('application', 'octet-stream')
+                part.set_payload(f.read())
+                encoders.encode_base64(part)
+                part.add_header('Content-Disposition', f'attachment; filename={attachment["file_name"]}')
+                message.attach(part)
+    
     try:
-        sg = SendGridAPIClient(os.getenv("MAIL_API_KEY"))
-        response = sg.send(message)
-        if response.status_code == 202:
-            return "Email sent successfully."
-        else:
-            return {"error": f"Failed to send email. Status code: {response.status_code}"}
+        # Set up the SMTP server
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()  # Secure the connection
+        server.login(from_email, app_password)  # Login using email and app password
+        
+        # Send the email
+        text = message.as_string()
+        server.sendmail(from_email, to_email, text)
+        
+        server.quit()  # Close the connection
+        return True
+    
     except Exception as e:
-        return {"error": str(e)}
+        print(f"An error occurred: {str(e)}")
+        return False
     
 def search_duckduckgo(query):
     logger.info("using search_duckduckgo tool")

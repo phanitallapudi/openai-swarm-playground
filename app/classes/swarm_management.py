@@ -1,6 +1,6 @@
 
 from dotenv import load_dotenv
-from openai import OpenAI
+from openai import OpenAI, AzureOpenAI
 from portkey_ai import PORTKEY_GATEWAY_URL, createHeaders
 from swarm import Swarm, Agent
 
@@ -18,6 +18,10 @@ class SwarmManagement:
     def __init__(self) -> None:
         self.client = OpenAI(
             api_key=PORTKEY_OPENAI_API_KEY, # defaults to os.environ.get("OPENAI_API_KEY")
+            base_url=PORTKEY_GATEWAY_URL,
+            default_headers=createHeaders(api_key=PORTKEY_API_KEY, virtual_key=VIRTUAL_KEY)
+        )
+        self.client = AzureOpenAI(
             base_url=PORTKEY_GATEWAY_URL,
             default_headers=createHeaders(api_key=PORTKEY_API_KEY, virtual_key=VIRTUAL_KEY)
         )

@@ -103,7 +103,6 @@ def search_duckduckgo(query):
     response = requests.get(url, params=params)
     response.raise_for_status()
     results = response.json()
-    
     return results
 
 def generate_random_string(length=8):
